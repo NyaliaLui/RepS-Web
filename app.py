@@ -14,5 +14,9 @@ def help():
 def about():
     return render_template("about.html")
 
+@app.route("/sort")
+def sort():
+    return render_template("sort.html")
+
 if __name__ == "__main__":
     app.run(debug=True)
