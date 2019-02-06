@@ -45,6 +45,10 @@
             <input type="file" id="replays" name="replays" accept=".zip">
             <label for="file" class="dragndrop"><strong>Upload replays in .zip file</strong> or drag it here</label>
           </div>
+          <div id="sort__by" style="display: none;">
+            <button class="sort__btn btn btn-lg btn-secondary">Sort by player name</button>
+            <button class="sort__btn btn btn-lg btn-secondary">Sort by SC2 matchup</button>
+        </div>
         <input type="hidden" name="ajax" value="1"></form>
       </main>
 
@@ -62,8 +66,8 @@
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
       <script>
         $(".box").on('click', function() {
-          $("#main__window").load("templates/sort.html");
           $(".replay__input").hide();
+          $("#sort__by").show();
         });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
