@@ -23,7 +23,9 @@
         window.location.replace("/");
       };
 
-      function dropHandler(ev) {
+      //drag-n-drop was modified from https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
+
+      function drop_replays(ev) {
           console.log('File(s) dropped');
 
           // Prevent default behavior (Prevent file from being opened)
@@ -50,7 +52,7 @@
 
         }
 
-        function dragOverHandler(ev) {
+        function drag_replays(ev) {
           console.log('File(s) in drop zone'); 
 
           // Prevent default behavior (Prevent file from being opened)
@@ -74,7 +76,7 @@
       </header>
 
       <main id="main__window" role="main" class="inner cover">
-        <form method="post" enctype="multipart/form-data" novalidate="" class="box has-advanced-upload" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
+        <form method="post" enctype="multipart/form-data" novalidate="" class="box has-advanced-upload" ondrop="drop_replays(event);" ondragover="drag_replays(event);">
 
           <div class="replay__input">
             <input type="file" id="replays" name="replays" accept=".zip">
