@@ -118,6 +118,15 @@ body {
   text-align: left;
 }
 
+#replay__zone {
+  background-color: #333;
+  outline: 2px dashed #fff;
+  outline-offset: -10px;
+  max-width: 100%;
+  padding: 5em 1em;
+  font-size: 1.2em;
+}
+
 .dragndrop
 {
   max-width: 80%;
@@ -126,15 +135,6 @@ body {
   cursor: pointer;
   display: inline-block;
   overflow: hidden;
-}
-
-.box.has-advanced-upload {
-  background-color: #333;
-  outline: 2px dashed #fff;
-  outline-offset: -10px;
-  max-width: 100%;
-  padding: 5em 1em;
-  font-size: 1.2em;
 }
 
 .sort__btn {
