@@ -5,6 +5,8 @@ from zipfile import ZipFile
 from reps import FolderProcessor
 from FileRenamer import FileRenamer
 from shutil import move
+import logging
+import sys
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(APP_ROOT, 'uploads/')
@@ -16,6 +18,8 @@ ALLOWED_EXTENSIONS = set(['zip'])
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'GNcC79NhRYEo7fIA3BQdKvlvIgRy'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.logger.addHandler(logging.StreamHandler(sys.stdout))
+app.logger.setLevel(logging.ERROR)
 
 def valid_file(filename):
     return '.' in filename and \
