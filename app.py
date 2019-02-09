@@ -9,8 +9,8 @@ import logging
 import sys
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_FOLDER = '/tmp/uploads/'
-REPLAY_FOLDER = '/tmp/replays/'
+UPLOAD_FOLDER = os.path.join(APP_ROOT, 'tmp/uploads/')
+REPLAY_FOLDER = os.path.join(APP_ROOT, 'tmp/replays/')
 REPLAYS_ZIP = 'Replays.zip'
 RENAMER = FileRenamer()
 ALLOWED_EXTENSIONS = set(['zip'])
