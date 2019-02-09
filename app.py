@@ -155,4 +155,14 @@ def about():
     return render_template("about.html")
 
 if __name__ == "__main__":
+    try:
+        os.mkdir(UPLOAD_FOLDER)
+    except:
+        print('uploads already exists')
+
+    try:
+        os.mkdir(REPLAY_FOLDER)
+    except:
+        print('replays already exists')
+
     app.run(debug=True)
