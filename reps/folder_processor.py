@@ -153,8 +153,10 @@ class FolderProcessor:
         #form the proper inspector
         if sort_type is 'p':
             self.__inspector = NameInspector()
+            print('player enabled')
         else:
             self.__inspector = MatchupInspector()
+            print('matchup enabled')
         
         #perform depth first search for replays
         self.__depth_first_search(folder_path, '')
