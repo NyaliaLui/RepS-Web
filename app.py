@@ -9,8 +9,8 @@ import logging
 import sys
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_FOLDER = os.path.join(APP_ROOT, 'uploads/')
-REPLAY_FOLDER = os.path.join(APP_ROOT, 'replays/')
+UPLOAD_FOLDER = os.path.join(APP_ROOT, 'tmp/uploads/')
+REPLAY_FOLDER = os.path.join(APP_ROOT, 'tmp/replays/')
 REPLAYS_ZIP = 'Replays.zip'
 RENAMER = FileRenamer()
 ALLOWED_EXTENSIONS = set(['zip'])
@@ -55,59 +55,7 @@ def zip_replays(dirname):
 
     os.chdir(APP_ROOT)
 
-@app.route("/")
-def home():
-    return render_template("home.html")
-
-@app.route("/sort", methods=['GET', 'POST'])
-def organize():
-    if request.method == 'POST':
-    
-        if 'replays' not in request.files:
-            flash('No .zip file uploaded')
-            return redirect(url_for('home'))
-        
-        replays = request.files['replays']
-        if replays.filename == '':
-            flash('the .zip file needs a filename')
-            return redirect(url_for('home'))
-
-        if replays and valid_file(replays.filename):
-            filename = secure_filename(replays.filename)
-            replays.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            op = ('m' if request.form['sort__btn'] is 'Sort by SC2 matchup' else 'p')
-            return redirect(url_for('replays_uploaded', filename=filename, sortop=op))
-        else:
-            flash('please upload a .zip file of SC2 replays')
-            return redirect(url_for('home'))
-
-    return render_template("nofile.html")
-
-@app.route("/sort/player", methods=['GET', 'POST'])
-def org_player():
-    if request.method == 'POST':
-    
-        if 'replays' not in request.files:
-            flash('No .zip file uploaded')
-            return redirect(url_for('home'))
-        
-        replays = request.files['replays']
-        if replays.filename == '':
-            flash('the .zip file needs a filename')
-            return redirect(url_for('home'))
-
-        if replays and valid_file(replays.filename):
-            filename = secure_filename(replays.filename)
-            replays.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('replays_uploaded', filename=filename, sortop='p'))
-        else:
-            flash('please upload a .zip file of SC2 replays')
-            return redirect(url_for('home'))
-
-    return render_template("nofile.html")
-
-@app.route("/replays/<sortop>/<filename>")
-def replays_uploaded(sortop, filename):
+def replays_uploaded(filename, sortop):
 
     directory = filename[:-4]
 
@@ -132,8 +80,60 @@ def replays_uploaded(sortop, filename):
     newzip = os.path.join(app.config['UPLOAD_FOLDER'], name+'.zip')
     move(oldzip, newzip)
 
-    #return the archived Replays
-    return redirect(url_for('thankyou', directory=name))
+    #return the directory where sorted replays were uploaded
+    return name
+
+@app.route("/")
+def home():
+    return render_template("home.html")
+
+@app.route("/sort/player", methods=['GET', 'POST'])
+def org_player():
+    if request.method == 'POST':
+    
+        if 'replays' not in request.files:
+            flash('No .zip file uploaded')
+            return redirect(url_for('home'))
+        
+        replays = request.files['replays']
+        if replays.filename == '':
+            flash('the .zip file needs a filename')
+            return redirect(url_for('home'))
+
+        if replays and valid_file(replays.filename):
+            filename = secure_filename(replays.filename)
+            replays.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            name = replays_uploaded(filename, 'p')
+            return redirect(url_for('thankyou', directory=name))
+        else:
+            flash('please upload a .zip file of SC2 replays')
+            return redirect(url_for('home'))
+
+    return render_template("nofile.html")
+
+@app.route("/sort/matchup", methods=['GET', 'POST'])
+def org_matchup():
+    if request.method == 'POST':
+    
+        if 'replays' not in request.files:
+            flash('No .zip file uploaded')
+            return redirect(url_for('home'))
+        
+        replays = request.files['replays']
+        if replays.filename == '':
+            flash('the .zip file needs a filename')
+            return redirect(url_for('home'))
+
+        if replays and valid_file(replays.filename):
+            filename = secure_filename(replays.filename)
+            replays.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            name = replays_uploaded(filename, 'm')
+            return redirect(url_for('thankyou', directory=name))
+        else:
+            flash('please upload a .zip file of SC2 replays')
+            return redirect(url_for('home'))
+
+    return render_template("nofile.html")
     
 @app.route("/replays/<directory>/Replays")
 def download(directory):

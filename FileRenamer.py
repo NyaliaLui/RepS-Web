@@ -1,12 +1,10 @@
-import hashlib
-
 class FileRenamer:
 
-    def __init__(self, basename='syalper 2cs'):
+    def __init__(self, basename='syalper-'):
         self._base = basename
-        self._hasher = hashlib.sha224()
-        self._hasher.update(self._base)
-
+        self._count = 0
 
     def next_available_name(self):
-        return self._hasher.hexdigest()
+        name = self._base + str(self._count)
+        self._count = self._count + 1
+        return name

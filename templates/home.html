@@ -64,11 +64,11 @@
           {% endif %}
         {% endwith %}
 
-        <form action="/sort" id="replay__zone" method="post" enctype="multipart/form-data">
+        <form id="replay__zone" method="post" enctype="multipart/form-data">
             <input type="file" id="replays" name="replays" onchange="show_btns()"/>
             <label id="replays__labl" for="replays" class="dragndrop"><strong>Upload replays in .zip file</strong> or drag it here</label>
-            <button class="sort__btn btn btn-lg btn-secondary" name="sort__btn" style="display:none;" >Sort by player name</button>
-            <button class="sort__btn btn btn-lg btn-secondary" name="sort__btn" style="display:none;">Sort by SC2 matchup</button>
+            <button class="sort__btn btn btn-lg btn-secondary" formaction="/sort/player" style="display:none;" >Sort by player name</button>
+            <button class="sort__btn btn btn-lg btn-secondary" formaction="/sort/matchup" style="display:none;">Sort by SC2 matchup</button>
         </form>
       </main>
 
