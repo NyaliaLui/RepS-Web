@@ -22,13 +22,19 @@
 
       //drag-n-drop was modified from https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
 
-      function drop_replays() {
-            // let el = document.getElementsById("replay__input");
-            // el.style.display = "none";
+      function show_btns() {
+
+            let eb = document.getElementById("replay__zone");
+            eb.style.outline = "none";
+
+            let el = document.getElementById("replays");
+            let ea = document.getElementById("replays__labl");
+            el.style.display = "none";
+            ea.style.display = "none";
 
             let em = document.getElementsByClassName("sort__btn");
-            em[0].style.display = "block";
-            em[1].style.display = "block";
+            em[0].style.display = "inline-block";
+            em[1].style.display = "inline-block";
         };
   </script>
 
@@ -58,11 +64,11 @@
           {% endif %}
         {% endwith %}
 
-        <form id="replay__zone" method="post" enctype="multipart/form-data">
-            <input type="file" id="replays" name="replays" onchange="drop_replays()"/>
-            <label for="replays" class="dragndrop"><strong>Upload replays in .zip file</strong> or drag it here</label>
-            <button class="sort__btn btn btn-lg btn-secondary" formaction="/sort/player" style="display:none;" onclick="go_here('/thankyou')">Sort by player name</button>
-            <button class="sort__btn btn btn-lg btn-secondary" formaction="/sort/matchup" style="display:none;" onclick="go_here('/thankyou')">Sort by SC2 matchup</button>
+        <form action="/sort" id="replay__zone" method="post" enctype="multipart/form-data">
+            <input type="file" id="replays" name="replays" onchange="show_btns()"/>
+            <label id="replays__labl" for="replays" class="dragndrop"><strong>Upload replays in .zip file</strong> or drag it here</label>
+            <button class="sort__btn btn btn-lg btn-secondary" name="sort__btn" style="display:none;" >Sort by player name</button>
+            <button class="sort__btn btn btn-lg btn-secondary" name="sort__btn" style="display:none;">Sort by SC2 matchup</button>
         </form>
       </main>
 

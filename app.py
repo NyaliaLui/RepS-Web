@@ -3,11 +3,14 @@ from flask import Flask, render_template, flash, request, redirect, url_for, sen
 from werkzeug.utils import secure_filename
 from zipfile import ZipFile
 from reps import FolderProcessor
+from FileRenamer import FileRenamer
+from shutil import move
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(APP_ROOT, 'uploads/')
 REPLAY_FOLDER = os.path.join(APP_ROOT, 'replays/')
 REPLAYS_ZIP = 'Replays.zip'
+RENAMER = FileRenamer()
 ALLOWED_EXTENSIONS = set(['zip'])
 
 app = Flask(__name__)
@@ -22,7 +25,6 @@ def extract_replays(filename):
     file_path = os.path.join(UPLOAD_FOLDER, filename)
 
     with ZipFile(file_path, 'r') as zip:
-        zip.printdir()
         zip.extractall(path=REPLAY_FOLDER)
 
 def get_all_file_paths(directory): 
@@ -53,8 +55,8 @@ def zip_replays(dirname):
 def home():
     return render_template("home.html")
 
-@app.route("/sort/matchup", methods=['GET', 'POST'])
-def org_matchup():
+@app.route("/sort", methods=['GET', 'POST'])
+def organize():
     if request.method == 'POST':
     
         if 'replays' not in request.files:
@@ -69,7 +71,8 @@ def org_matchup():
         if replays and valid_file(replays.filename):
             filename = secure_filename(replays.filename)
             replays.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('replays_uploaded', filename=filename, sortop='m'))
+            op = ('m' if request.form['sort__btn'] is 'Sort by SC2 matchup' else 'p')
+            return redirect(url_for('replays_uploaded', filename=filename, sortop=op))
         else:
             flash('please upload a .zip file of SC2 replays')
             return redirect(url_for('home'))
@@ -115,14 +118,29 @@ def replays_uploaded(sortop, filename):
     #zip /Replays
     zip_replays(directory)
 
-    print(os.getcwd())
+    #rename files for archival purposes
+    name = RENAMER.next_available_name()
+    olddir = target
+    newdir = os.path.join(REPLAY_FOLDER, name)
+    move(olddir, newdir)
+
+    oldzip = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    newzip = os.path.join(app.config['UPLOAD_FOLDER'], name+'.zip')
+    move(oldzip, newzip)
 
     #return the archived Replays
-    return send_from_directory(target, REPLAYS_ZIP)
+    return redirect(url_for('thankyou', directory=name))
+    
+@app.route("/replays/<directory>/Replays")
+def download(directory):
 
-@app.route("/thankyou")
-def thankyou():
-    return render_template("thankyou.html")
+    location = os.path.join(REPLAY_FOLDER, directory)
+
+    return send_from_directory(location, REPLAYS_ZIP)
+
+@app.route("/thankyou/<directory>")
+def thankyou(directory):
+    return render_template("thankyou.html", result=directory)
 
 @app.route("/help")
 def help():
@@ -131,10 +149,6 @@ def help():
 @app.route("/about")
 def about():
     return render_template("about.html")
-
-@app.route("/sort")
-def sort():
-    return render_template("sort.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
