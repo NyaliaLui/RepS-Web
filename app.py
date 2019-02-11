@@ -165,4 +165,10 @@ if __name__ == "__main__":
     except:
         print('replays already exists')
 
+    dirs = os.listdir(APP_ROOT)
+    print dirs
+
+    dirs2 = os.listdir(os.path.abspath(__file__))
+    print dirs2
+
     app.run(debug=True)
