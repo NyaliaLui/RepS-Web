@@ -25,11 +25,12 @@ def valid_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def extract_replays(filename):
-    file_path = os.path.join(UPLOAD_FOLDER, filename)
+def extract_replays(src, dest):
+    file_path = os.path.join(UPLOAD_FOLDER, src)
+    target_path = os.path.join(REPLAY_FOLDER, dest)
 
     with ZipFile(file_path, 'r') as zip:
-        zip.extractall(path=REPLAY_FOLDER)
+        zip.extractall(path=target_path)
 
 def get_all_file_paths(directory): 
   
@@ -60,7 +61,7 @@ def replays_uploaded(filename, sortop):
     directory = filename[:-4]
 
     #unzip file to /replays/<filename w/o extension>
-    extract_replays(filename)
+    extract_replays(src=filename, dest=directory)
 
     #run RepS
     target = os.path.join(REPLAY_FOLDER, directory)
