@@ -135,6 +135,11 @@ body {
   font-size: 1.2em;
 }
 
+.flashes {
+  color: palevioletred;
+  font-size: 2em;
+}
+
 .dragndrop
 {
   max-width: 80%;
