@@ -6,10 +6,15 @@ from replay import Replay, is_replay, copy_replay
 import datetime
 import platform
 
-#FolderProcessor - a singleton which
-#traverses a directory tree, organizes the replays using inspectors,
-#and creates the proper subfolders
+#FolderProcessor
+# @purpose - a singleton which traverses a directory tree, 
+# organizes the replays using inspectors, and creates the proper subfolders.
 class FolderProcessor:
+
+    #folders - a hash for each subfolder created
+    #same_series - a hash for temporarily storing replays that are in the same series
+    #inspector - the inspector object that determines the key for folders hash
+    #dest_folder - this is the target directory to write organized replays to
 
     def __init__(self, dest=''):
         self.__folders = {}
@@ -18,9 +23,12 @@ class FolderProcessor:
         self.__dest_folder = dest
         self.__platform = platform.system()
 
-    #create_folders - creates necessary subfolders from the hash of replays
-    #where each key is the folder name. Then, it copies all replays into 
-    #the appropriate locations
+    #create_folders
+    # @params - no parameters
+    # @return - no return values
+    # @purpose - creates the necessary subfolders from the folders hash where 
+    #   each key is the folder name. Then, it copies all replays into 
+    #   the appropriate locations
     def __create_folders(self):
         parent_folder = join(self.__dest_folder, 'Replays')
         #create parent directory is called "RepS"
@@ -59,8 +67,12 @@ class FolderProcessor:
                 new_name = join(folder, replay.replay_name)
                 rename(old_name, new_name)
                 
-    #depth_first_search - recurssively search the folder structure for all replays
-    #call the inspector to form and add to necessary buckets after reading a replay
+    #depth_first_search
+    # @params - the path to start the search and a temporary intermediate path used to
+    #   keep track of the current working directory
+    # @return - no return values
+    # @purpose - recurssively search the folder structure for all SC2 replays and call
+    #   the inspector to form add replays to the nececessary subfolders
     def __depth_first_search(self, start_path, inter_path):
         current_path = join(start_path, inter_path)
         dirs_and_files = listdir(current_path)
@@ -108,8 +120,11 @@ class FolderProcessor:
                     self.__folders[key].append(replay)
 
 
-    #sort_chronologically - go through each replay in each folder (hash key) and sort the list
-    #in chronological order using the UTC timestamp
+    #sort_chronologically
+    # @params - no parameters
+    # @return - no return values
+    # @purpose - go through each replay in each folder and sort the list
+    #   in chronological order using the UTC timestamp
     def __sort_chronogolocally(self):
 
         #the function to sort each
@@ -119,8 +134,11 @@ class FolderProcessor:
             self.__folders[key].sort(key=by_UTC)
                 
 
-    #mark_series - iterate through each replay in each folder (hash key) and flag
-    #games in the same series
+    #mark_series
+    # @params - no parameters
+    # @return - no return values
+    # @purpose - iterate through each replay in each folder and flag games
+    #   in the same series
     def __mark_series(self):
 
         for key in self.__folders:
@@ -146,17 +164,18 @@ class FolderProcessor:
                     self.__same_series[key] = []
                     self.__same_series[key].append(replay.replay_name)
 
-    #organize_replays - conduct a depth first search on the given replay folder
-    #and organize the replays.
+    #organize_replays
+    # @params - the relative path to the folder of replays to search and
+    #   the type of sort to conduct, either by matchup or by player
+    # @return - no return values
+    # @purpose - organize all the replays in a given folder of SC2 replays.
     def organize_replays(self, folder_path, sort_type):
         
         #form the proper inspector
         if sort_type is 'p':
             self.__inspector = NameInspector()
-            print('player enabled')
         else:
             self.__inspector = MatchupInspector()
-            print('matchup enabled')
         
         #perform depth first search for replays
         self.__depth_first_search(folder_path, '')

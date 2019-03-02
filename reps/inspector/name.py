@@ -1,4 +1,5 @@
-#Name Inspector - the inspector which is only concerned with
+#Name Inspector
+# @purpose - the inspector which is only concerned with
 #the list of names in the given replay.
 class NameInspector:
 
@@ -6,8 +7,10 @@ class NameInspector:
         pass
 
 
-    #inspect - return the list of names
-    #seen in this replay
+    #inspect
+    # @params - a SC2 replay
+    # @return - the list of names seen in the given replay
+    # @purpose - inspect a replay for the list of player names
     def inspect(self, replay):
         names = []
         for player in replay.players:
