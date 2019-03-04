@@ -8,6 +8,7 @@ from shutil import move
 import logging
 import sys
 import json, boto3
+from botocore.client import Config
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(APP_ROOT, os.path.join('tmp', 'uploads'))
@@ -184,8 +185,7 @@ def sign_s3():
     Conditions = [
       {"acl": "public-read"},
       {"Content-Type": file_type}
-    ],
-    ExpiresIn = 3600
+    ]
   )
 
   return json.dumps({
@@ -194,8 +194,6 @@ def sign_s3():
   })
 
 if __name__ == "__main__":
-    port = int(os.environ.get('PORT', 5000))
-
     try:
         os.mkdir(UPLOAD_FOLDER)
     except:
@@ -206,4 +204,4 @@ if __name__ == "__main__":
     except:
         print('replays already exists')
 
-    app.run(debug=True, port=port)
+    app.run(debug=True)
