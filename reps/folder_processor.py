@@ -35,7 +35,7 @@ class FolderProcessor:
         try:
             mkdir(parent_folder)
         except OSError:
-            pass
+            raise Exception('Replays folder is already formed')
 
         #for each key of hash, create the folder name
         #and copy the necessary replays into it
