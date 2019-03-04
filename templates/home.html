@@ -16,10 +16,6 @@
   </head>
 
   <script>
-      function go_here(url) {
-        window.location.replace(url);
-      };
-
       function add_err(msg) {
         let err = document.createElement('li');
         err.innerText = msg;
@@ -48,7 +44,7 @@
     <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
       <header class="masthead mb-auto">
         <div class="inner">
-            <h3 class="masthead-brand" onclick="go_here('/')" style="cursor: pointer;">RepS</h3>
+            <a class="masthead-brand" href="/" style="cursor: pointer;">RepS</ha>
           <nav class="nav nav-masthead justify-content-center">
             <a class="nav-link" href="/help">HELP!</a>
             <a class="nav-link" href="/about">About</a>
