@@ -7,10 +7,11 @@ from FileRenamer import FileRenamer
 from shutil import move
 import logging
 import sys
+import json, boto3
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_FOLDER = os.path.join(APP_ROOT, 'tmp/uploads/')
-REPLAY_FOLDER = os.path.join(APP_ROOT, 'tmp/replays/')
+UPLOAD_FOLDER = os.path.join(APP_ROOT, os.path.join('tmp', 'uploads'))
+REPLAY_FOLDER = os.path.join(APP_ROOT, os.path.join('tmp', 'replays'))
 REPLAYS_ZIP = 'Replays.zip'
 RENAMER = FileRenamer()
 ALLOWED_EXTENSIONS = set(['zip'])
@@ -47,7 +48,7 @@ def zip_replays(dirname):
     dir_path = os.path.join(REPLAY_FOLDER, dirname)
     os.chdir(dir_path)
 
-    file_paths = get_all_file_paths('Replays/')
+    file_paths = get_all_file_paths('Replays')
 
     with ZipFile(REPLAYS_ZIP, 'w') as zip: 
         # writing each file one by one 
@@ -104,7 +105,13 @@ def org_player():
         if replays and valid_file(replays.filename):
             filename = secure_filename(replays.filename)
             replays.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            name = replays_uploaded(filename, 'p')
+            name = ''
+            try:
+                name = replays_uploaded(filename, 'p')
+            except Exception:
+                flash('something went wrong. make sure the zip archive doesn\'t have a folder named Replays')
+                return redirect(url_for('home'))
+
             return redirect(url_for('thankyou', directory=name))
         else:
             flash('please upload a .zip file of SC2 replays')
@@ -128,7 +135,13 @@ def org_matchup():
         if replays and valid_file(replays.filename):
             filename = secure_filename(replays.filename)
             replays.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            name = replays_uploaded(filename, 'm')
+            name = ''
+            try:
+                name = replays_uploaded(filename, 'm')
+            except Exception:
+                flash('something went wrong. make sure the zip archive doesn\'t have a folder named Replays')
+                return redirect(url_for('home'))
+
             return redirect(url_for('thankyou', directory=name))
         else:
             flash('please upload a .zip file of SC2 replays')
@@ -155,7 +168,34 @@ def help():
 def about():
     return render_template("about.html")
 
+@app.route('/sign_s3/')
+def sign_s3():
+  S3_BUCKET = os.environ.get('S3_BUCKET')
+
+  file_name = request.args.get('file_name')
+  file_type = request.args.get('file_type')
+
+  s3 = boto3.client('s3', config = Config(signature_version = 's3v4'))
+
+  presigned_post = s3.generate_presigned_post(
+    Bucket = S3_BUCKET,
+    Key = file_name,
+    Fields = {"acl": "public-read", "Content-Type": file_type},
+    Conditions = [
+      {"acl": "public-read"},
+      {"Content-Type": file_type}
+    ],
+    ExpiresIn = 3600
+  )
+
+  return json.dumps({
+    'data': presigned_post,
+    'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, file_name)
+  })
+
 if __name__ == "__main__":
+    port = int(os.environ.get('PORT', 5000))
+
     try:
         os.mkdir(UPLOAD_FOLDER)
     except:
@@ -166,4 +206,4 @@ if __name__ == "__main__":
     except:
         print('replays already exists')
 
-    app.run(debug=True)
+    app.run(debug=True, port=port)

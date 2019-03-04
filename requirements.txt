@@ -1,3 +1,4 @@
 s2protocol
 Flask
+boto3
 gunicorn

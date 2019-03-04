@@ -1,11 +1,15 @@
-#Matchup Inspector - the inspector which is only concerned with
+#Matchup Inspector
+# @purpose - the inspector which is only concerned with
 #the 1v1 matchup of a replay.
 class MatchupInspector:
 
     def __init__(self):
         pass
 
-    #sort - sort a list using simple sorting procedure
+    #sort
+    # @params - a list of SC2 races
+    # @return - no return values
+    # @purpose - sort a list of SC2 races using bubble sort
     def __sort(self, races):
         is_sorted = False
         swaps = 0
@@ -24,8 +28,10 @@ class MatchupInspector:
             swaps = 0
     
 
-    #inspect - return the matchup seen in 
-    #in this replay
+    #inspect
+    # @params - a SC2 replay
+    # @return - the matchup seen in the given replay
+    # @purpose - inspect a replay for the SC2 matchup that was played
     def inspect(self, replay):
         races = []
         
