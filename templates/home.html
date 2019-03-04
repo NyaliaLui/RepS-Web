@@ -68,7 +68,7 @@
         </ul>
 
         <form id="replay__zone" method="post" enctype="multipart/form-data">
-            <input type="file" id="replays" name="replays" onchange="show_btns()"/>
+            <input type="file" id="replays" name="replays"/>
             <label id="replays__labl" for="replays" class="dragndrop"><strong>Click here</strong> to upload replays in .zip file</label>
             <button class="sort__btn btn btn-lg btn-secondary" formaction="/sort/player" style="display:none;" >Sort by player name</button>
             <button class="sort__btn btn btn-lg btn-secondary" formaction="/sort/matchup" style="display:none;">Sort by SC2 matchup</button>
@@ -97,7 +97,7 @@
         xhr.onreadystatechange = function() {
           if(xhr.readyState === 4){
             if(xhr.status === 200 || xhr.status === 204){
-              console.log("uploading file. this may take a few minutes");
+              show_btns();
             }
             else{
               add_err("Could not upload file. retry in a few minutes");
