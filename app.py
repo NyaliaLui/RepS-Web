@@ -6,7 +6,7 @@ import sys
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(APP_ROOT, os.path.join('tmp', 'uploads'))
 REPLAY_FOLDER = os.path.join(APP_ROOT, os.path.join('tmp', 'replays'))
-ARCHIVE_FOLDER = os.path.join(APP_ROOT, 'archive')
+ARCHIVE_FOLDER = os.path.join(APP_ROOT, 'tmp', 'archive')
 REPLAYS_ZIP = 'Replays.zip'
 ALLOWED_EXTENSIONS = set(['zip'])
 
