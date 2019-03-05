@@ -3,5 +3,3 @@ mkdir tmp
 mkdir tmp/uploads
 mkdir tmp/replays
 mkdir tmp/archive
-
-python transfer_aws_archives.py
