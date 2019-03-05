@@ -9,7 +9,7 @@ import botocore
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(APP_ROOT, os.path.join('tmp', 'uploads'))
 REPLAY_FOLDER = os.path.join(APP_ROOT, os.path.join('tmp', 'replays'))
-ARCHIVE_FOLDER = os.path.join(APP_ROOT, 'tmp', 'archive')
+ARCHIVE_FOLDER = os.path.join(APP_ROOT, os.path.join('tmp', 'archive'))
 REPLAYS_ZIP = 'Replays.zip'
 ALLOWED_EXTENSIONS = set(['zip'])
 
@@ -21,20 +21,32 @@ app.logger.setLevel(logging.ERROR)
 
 def create_subfolders(directory):
     os.chdir(ARCHIVE_FOLDER)
-    os.mkdir(directory)
-    os.mkdir(os.path.join(directory, 'M'))
-    os.mkdir(os.path.join(directory, 'P'))
-    os.chdir(APP_ROOT)
-
-def transfer_from_s3(archive_name, directory, sortop):
-    os.chdir(ARCHIVE_FOLDER)
-
-    S3_BUCKET = os.environ.get('S3_BUCKET')
-    s3 = boto3.resource('s3')
-    local_dest = os.path.join(directory, sortop, archive_name)
 
     try:
-        s3.Bucket(S3_BUCKET).download_file(archive_name, local_dest)
+        os.mkdir(directory)
+    except OSError:
+        print(directory + ' already created')
+
+    try:
+        os.mkdir(os.path.join(directory, 'M'))
+    except OSError:
+        print(directory + '/M already created')
+
+    try:
+        os.mkdir(os.path.join(directory, 'P'))
+    except OSError:
+        print(directory + '/P already created')
+
+    os.chdir(APP_ROOT)
+
+def transfer_from_s3(archive_name, local_dest):
+    os.chdir(local_dest)
+
+    S3_BUCKET = os.environ.get('S3_BUCKET')
+    s3 = boto3.client('s3', region_name='us-east-2', config=Config(signature_version='s3v4'))
+
+    try:
+        s3.download_file(S3_BUCKET, archive_name, archive_name)
     except botocore.exceptions.ClientError as e:
         if e.response['Error']['Code'] == "404":
             print(archive_name + " does not exist on S3.")
@@ -62,6 +74,11 @@ def download(directory, sortop):
         location = os.path.join(ARCHIVE_FOLDER, directory, sortop)
         zip_file = directory + '-' + 'SB' + sortop + '.zip'
 
+        if not os.path.isfile(os.path.join(location, zip_file)):
+            create_subfolders(directory)
+            transfer_from_s3(zip_file, location)
+            print('archives successfully transfered')
+
         return send_from_directory(location, zip_file)
 
     return render_template("nofile.html")
@@ -71,12 +88,6 @@ if __name__ == "__main__":
         os.mkdir(ARCHIVE_FOLDER)
     except:
         print('archive already exists')
-        
-    directory = 'IEM-Katowice-2019'
-    create_subfolders('IEM-Katowice-2019')
-    transfer_from_s3('IEM-Katowice-2019-SBP.zip', directory, 'P')
-    transfer_from_s3('IEM-Katowice-2019-SBM.zip', directory, 'M')
-    print('archives successfully transfered')
 
     try:
         os.mkdir(UPLOAD_FOLDER)

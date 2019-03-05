@@ -13,6 +13,11 @@
 
     <!-- Custom styles for this template -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/cover.css') }}">
+    <script>
+      function prepping_download() {
+        confirm("Preparing your download, this may take a few minutes.");
+      }
+    </script>
   </head>
 
   <body class="text-center">
@@ -41,8 +46,8 @@
             <tbody>
               <tr>
                 <th scope="row">IEM Katowice 2019</th>
-                <td><a class="download__link" href="/archive/IEM-Katowice-2019/P/Replays">click here to download</a></td>
-                <td><a class="download__link" href="/archive/IEM-Katowice-2019/M/Replays">click here to download</a></td>
+                <td><a class="download__link" href="/archive/IEM-Katowice-2019/P/Replays" onclick="prepping_download()">click here to download</a></td>
+                <td><a class="download__link" href="/archive/IEM-Katowice-2019/M/Replays" onclick="prepping_download()">click here to download</a></td>
                 <td>4.8.3.72282</td>
               </tr>
             </tbody>
