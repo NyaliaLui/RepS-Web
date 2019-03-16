@@ -86,7 +86,10 @@ class FolderProcessor:
                 files.append(df)
 
             if isdir(join(current_path, df)):
-                dirs.append(df)
+                if 'Replays' == df:
+                    raise Exception('Replays folder is already formed')
+                else:
+                    dirs.append(df)
 
         for i in range(len(dirs)):
             inter = join(inter_path, dirs[i])
@@ -171,6 +174,12 @@ class FolderProcessor:
     # @purpose - organize all the replays in a given folder of SC2 replays.
     def organize_replays(self, folder_path, sort_type):
         
+        if (folder_path is None) or (folder_path is ''):
+            raise Exception('folder_path must be defined and non-empty')
+        
+        if (sort_type is None) or (sort_type not in ('p', 'm')):
+            raise Exception('sort_type must be either {p|m}')
+
         #form the proper inspector
         if sort_type is 'p':
             self.__inspector = NameInspector()
