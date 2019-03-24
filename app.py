@@ -9,8 +9,8 @@ from botocore.client import Config
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 ARCHIVE_MANAGER = Dispatcher(APP_ROOT)
-UPLOAD_FOLDER = os.path.join(APP_ROOT, os.path.join('tmp', 'uploads'))
-REPLAY_FOLDER = os.path.join(APP_ROOT, os.path.join('tmp', 'replays'))
+UPLOAD_FOLDER = os.path.join(APP_ROOT, 'uploads')
+REPLAY_FOLDER = os.path.join(APP_ROOT, 'replays')
 REPLAYS_ZIP = 'Replays.zip'
 ALLOWED_EXTENSIONS = set(['zip'])
 
