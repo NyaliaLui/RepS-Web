@@ -29,6 +29,7 @@
       </header>
 
       <main id="main__window" role="main" class="inner cover">
+<<<<<<< HEAD
         <h1>RepS replay organizer</h1>
         <h1 id="thank__link">Coming Soon!</h1>
         <p id="about__text">RepS is a replay organizer that will look at all SC2 replays in a zip archive and sort them.
@@ -36,6 +37,24 @@
           large replay packs for the matches and series he wants to watch. This tool is designed to make replay organization easier for both 
           streamers and viewers alike.
         </p>
+=======
+        <ul class=flashes id="err__wndow">
+          {% with messages = get_flashed_messages() %}
+            {% if messages %}      
+              {% for message in messages %}
+                <li>{{ message }}</li>
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
+        </ul>
+
+        <form id="replay__zone" method="post" enctype="multipart/form-data">
+            <input type="file" id="replays" name="replays" onchange="show_btns()"/>
+            <label id="replays__labl" for="replays" class="dragndrop"><strong>Click here</strong> to upload replays in .zip file</label>
+            <button class="sort__btn btn btn-lg btn-secondary" formaction="/sort/player" style="display:none;" >Sort by player name</button>
+            <button class="sort__btn btn btn-lg btn-secondary" formaction="/sort/matchup" style="display:none;">Sort by SC2 matchup</button>
+        </form>
+>>>>>>> 25b3f731a39d6f612e48b248f9d7ce9381be3810
       </main>
 
       <footer class="mastfoot mt-auto">
@@ -45,6 +64,10 @@
         </div>
       </footer>
     </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 25b3f731a39d6f612e48b248f9d7ce9381be3810
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
