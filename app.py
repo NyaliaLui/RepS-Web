@@ -24,6 +24,19 @@ def valid_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def create_app():
+    try:
+        os.mkdir(UPLOAD_FOLDER)
+    except:
+        print('uploads already exists')
+
+    try:
+        os.mkdir(REPLAY_FOLDER)
+    except:
+        print('replays already exists')
+
+    return app
+
 @app.route("/")
 def home():
     return render_template("home.html")
