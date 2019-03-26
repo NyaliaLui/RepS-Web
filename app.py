@@ -7,6 +7,7 @@ import sys
 import boto3
 from botocore.client import Config
 import botocore
+import json
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 ARCHIVE_MANAGER = Dispatcher(APP_ROOT)
@@ -69,33 +70,40 @@ def transfer_from_s3(archive_name, local_dest):
 def home():
     return render_template("home.html")
 
-@app.route("/sort/player", methods=['GET', 'POST'])
-def org_player():
+@app.route("/upload", methods=['GET', 'POST'])
+def upload():
     if request.method == 'POST':
-    
         if 'replays' not in request.files:
-            flash('No .zip file uploaded')
-            return redirect(url_for('home'))
+            return json.dumps({'msg':'No .zip file uploaded'}), 500
         
         replays = request.files['replays']
         if replays.filename == '':
-            flash('the .zip file needs a filename')
-            return redirect(url_for('home'))
+            return json.dumps({'msg':'the .zip file needs a filename'}), 503
 
         if replays and valid_file(replays.filename):
             filename = secure_filename(replays.filename)
             replays.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            name = ''
-            try:
-                name = ARCHIVE_MANAGER.dispatch(filename, 'p')
-            except Exception:
-                flash('something went wrong. make sure the zip archive doesn\'t have a folder named Replays')
-                return redirect(url_for('home'))
 
-            return redirect(url_for('thankyou', directory=name))
+            return json.dumps({'msg':'success'}), 200
         else:
-            flash('please upload a .zip file of SC2 replays')
+            return json.dumps({'msg':'please upload a .zip file of SC2 replays'}), 503
+    
+    return render_template("nofile.html")
+
+@app.route("/sort/player", methods=['GET', 'POST'])
+def org_player():
+    if request.method == 'POST':
+    
+        archivename = request.form['archivename']
+        filename = secure_filename(archivename)
+        name = ''
+        try:
+            name = ARCHIVE_MANAGER.dispatch(filename, 'p')
+        except Exception:
+            flash('something went wrong. make sure the zip archive doesn\'t have a folder named Replays')
             return redirect(url_for('home'))
+
+        return redirect(url_for('thankyou', directory=name))
 
     return render_template("nofile.html")
 
@@ -103,29 +111,12 @@ def org_player():
 def org_matchup():
     if request.method == 'POST':
     
-        if 'replays' not in request.files:
-            flash('No .zip file uploaded')
-            return redirect(url_for('home'))
-        
-        replays = request.files['replays']
-        if replays.filename == '':
-            flash('the .zip file needs a filename')
-            return redirect(url_for('home'))
+        archivename = request.form['archivename']
+        filename = secure_filename(archivename)
+        name = ''
+        name = ARCHIVE_MANAGER.dispatch(filename, 'm')
 
-        if replays and valid_file(replays.filename):
-            filename = secure_filename(replays.filename)
-            replays.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            name = ''
-            try:
-                name = ARCHIVE_MANAGER.dispatch(filename, 'm')
-            except Exception:
-                flash('something went wrong. make sure the zip archive doesn\'t have a folder named Replays')
-                return redirect(url_for('home'))
-
-            return redirect(url_for('thankyou', directory=name))
-        else:
-            flash('please upload a .zip file of SC2 replays')
-            return redirect(url_for('home'))
+        return redirect(url_for('thankyou', directory=name))
 
     return render_template("nofile.html")
     

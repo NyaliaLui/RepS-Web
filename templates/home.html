@@ -16,27 +16,102 @@
   </head>
 
   <script>
+      function _(el) {
+        return document.getElementById(el);
+      }
       function add_err(msg) {
         let err = document.createElement('li');
         err.innerText = msg;
-        let errwindow = document.getElementById("err__wndow");
+        let errwindow = _("err__wndow");
         errwindow.appendChild(err);
       }
 
+      function clear_errs() {
+        let errwindow = _("err__wndow");
+        while (errwindow.firstChild) {
+          errwindow.removeChild(errwindow.firstChild);
+        }
+      }
+
       function show_btns() {
+          let em = document.getElementsByClassName("sort__btn");
+          em[0].style.display = "inline-block";
+          em[1].style.display = "inline-block";
+      }
 
-            let eb = document.getElementById("replay__zone");
-            eb.style.outline = "none";
+      function file_is_valid() {
+            let file = _("replays").files[0];
 
-            let el = document.getElementById("replays");
-            let ea = document.getElementById("replays__labl");
-            el.style.display = "none";
-            ea.style.display = "none";
+            if (file.size > 100000000) {
+              add_err("archive size must be less than 100MB")
+            } else if (file.type != "application/zip") {
+              add_err("file must be a .zip archive")
+            } else {
 
-            let em = document.getElementsByClassName("sort__btn");
-            em[0].style.display = "inline-block";
-            em[1].style.display = "inline-block";
+              clear_errs();
+
+              //hide replays input
+              _("replay__zone").style.outline = "none";
+              _("replays").style.display = "none";
+              _("replays__labl").style.display = "none"
+
+              //show progress bar
+              _("progress__bar").style.display = "inline-block";
+              _("status").style.display = "inline-block";
+              _("loaded_n_total").style.display = "inline-block";
+            }
         };
+
+        function upload_file() {
+          let file = _("replays").files[0];
+          //set filename
+          _("archivename").value = file.name;
+          
+          let formdata = new FormData();
+          formdata.append("replays", file);
+
+          let ajax = new XMLHttpRequest();
+          ajax.upload.addEventListener("progress", progress_handler, false);
+          ajax.addEventListener("load", complete_handler, false);
+          ajax.addEventListener("error", err_handler, false);
+          ajax.addEventListener("abort", abort_handler, false);
+          ajax.open("POST", '/upload');
+          ajax.send(formdata);
+        }
+
+        function progress_handler(event) {
+          _("loaded_n_total").innerHTML = "Uploaded: " + event.loaded + " / " + event.total;
+          let percent = (event.loaded / event.total) * 100;
+          _("progress__bar").value = Math.round(percent);
+          _("status").innerHTML = Math.round(percent) + "% uploaded";
+        }
+
+        function complete_handler(event) {
+          let res = JSON.parse(event.target.responseText);
+          
+          if (res.msg != "success") {
+            add_err(res.msg);
+          } else {
+            //hide progress bar
+            _("progress__bar").style.display = "none";
+            _("status").style.display = "none";
+            _("loaded_n_total").style.display = "none";
+
+            //show sortop btns
+            show_btns();
+
+            //clear file out
+            _("replay__zone").removeChild(_("replays"));
+          }
+        }
+
+        function err_handler(event) {
+          add_err("Upload Failed");
+        }
+
+        function abort_handler(event) {
+          add_err("Upload Aborted");
+        }
   </script>
 
   <body class="text-center">
@@ -65,8 +140,12 @@
         </ul>
 
         <form id="replay__zone" method="post" enctype="multipart/form-data">
-            <input type="file" id="replays" name="replays" onchange="show_btns()"/>
+            <input type="file" id="replays" name="replays" onchange="file_is_valid();upload_file()"/>
             <label id="replays__labl" for="replays" class="dragndrop"><strong>Click here</strong> to upload replays in .zip file</label>
+            <progress id="progress__bar" value="0" max="100" style="width:300px;display:none;"></progress>
+            <h3 id="status" style="display:none;"></h3>
+            <p id="loaded_n_total" style="display:none;"></p>
+            <input type="text" id="archivename" name="archivename" style="display:none;">
             <button class="sort__btn btn btn-lg btn-secondary" formaction="/sort/player" style="display:none;" >Sort by player name</button>
             <button class="sort__btn btn btn-lg btn-secondary" formaction="/sort/matchup" style="display:none;">Sort by SC2 matchup</button>
         </form>
