@@ -3,8 +3,8 @@
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="RepS is a SC2 replay organizer">
-    <meta name="author" content="Nyalia Lui">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
     <title>RepS</title>
 
@@ -15,6 +15,30 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/cover.css') }}">
   </head>
 
+  <script>
+      function add_err(msg) {
+        let err = document.createElement('li');
+        err.innerText = msg;
+        let errwindow = document.getElementById("err__wndow");
+        errwindow.appendChild(err);
+      }
+
+      function show_btns() {
+
+            let eb = document.getElementById("replay__zone");
+            eb.style.outline = "none";
+
+            let el = document.getElementById("replays");
+            let ea = document.getElementById("replays__labl");
+            el.style.display = "none";
+            ea.style.display = "none";
+
+            let em = document.getElementsByClassName("sort__btn");
+            em[0].style.display = "inline-block";
+            em[1].style.display = "inline-block";
+        };
+  </script>
+
   <body class="text-center">
 
     <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
@@ -22,22 +46,13 @@
         <div class="inner">
             <a class="masthead-brand" href="/" style="cursor: pointer;">RepS</ha>
           <nav class="nav nav-masthead justify-content-center">
-            <a class="nav-link" href="/premade">Premade Archives</a>
+            <a class="nav-link" href="/help">HELP!</a>
             <a class="nav-link" href="/about">About</a>
           </nav>
         </div>
       </header>
 
       <main id="main__window" role="main" class="inner cover">
-<<<<<<< HEAD
-        <h1>RepS replay organizer</h1>
-        <h1 id="thank__link">Coming Soon!</h1>
-        <p id="about__text">RepS is a replay organizer that will look at all SC2 replays in a zip archive and sort them.
-          The creator, Nyalia "Noticals" Lui, has been a SC2 fan since 2011 but has grown tired searching through
-          large replay packs for the matches and series he wants to watch. This tool is designed to make replay organization easier for both 
-          streamers and viewers alike.
-        </p>
-=======
         <ul class=flashes id="err__wndow">
           {% with messages = get_flashed_messages() %}
             {% if messages %}      
@@ -54,7 +69,6 @@
             <button class="sort__btn btn btn-lg btn-secondary" formaction="/sort/player" style="display:none;" >Sort by player name</button>
             <button class="sort__btn btn btn-lg btn-secondary" formaction="/sort/matchup" style="display:none;">Sort by SC2 matchup</button>
         </form>
->>>>>>> 25b3f731a39d6f612e48b248f9d7ce9381be3810
       </main>
 
       <footer class="mastfoot mt-auto">
@@ -64,10 +78,7 @@
         </div>
       </footer>
     </div>
-<<<<<<< HEAD
-=======
 
->>>>>>> 25b3f731a39d6f612e48b248f9d7ce9381be3810
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
