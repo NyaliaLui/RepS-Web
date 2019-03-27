@@ -39,12 +39,19 @@
           em[1].style.display = "inline-block";
       }
 
+      function is_zip(filetype) {
+        return (filetype == "application/zip") ||
+         (filetype == "application/x-zip-compressed") ||
+         (filetype == "application/zip-compressed");
+      }
+
       function file_is_valid() {
             let file = _("replays").files[0];
 
             if (file.size > 100000000) {
               add_err("archive size must be less than 100MB")
-            } else if (file.type != "application/zip") {
+            } else if (!is_zip(file.type)) {
+              console.log(file.type, file.name)
               add_err("file must be a .zip archive")
             } else {
 
