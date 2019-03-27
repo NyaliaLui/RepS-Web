@@ -27,6 +27,24 @@ def valid_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def setup_app():
+    try:
+        os.mkdir(ARCHIVE_FOLDER)
+    except:
+        print('archive already exists')
+
+    try:
+        os.mkdir(UPLOAD_FOLDER)
+    except:
+        print('uploads already exists')
+
+    try:
+        os.mkdir(REPLAY_FOLDER)
+    except:
+        print('replays already exists')
+
+    return app
+
 def create_subfolders(directory):
     os.chdir(ARCHIVE_FOLDER)
 
@@ -50,19 +68,20 @@ def create_subfolders(directory):
 def transfer_from_s3(archive_name, local_dest):
     os.chdir(local_dest)
 
-    S3_BUCKET = os.getenv('S3_BUCKET')
+    S3_BUCKET = os.environ.get("S3_BUCKET")
     s3 = boto3.client('s3', region_name='us-east-2', config=Config(signature_version='s3v4'))
 
     try:
         s3.download_file(S3_BUCKET, archive_name, archive_name)
     except botocore.exceptions.ClientError as e:
         if e.response['Error']['Code'] == "404":
-            print(archive_name + " does not exist on S3.")
+            print(archive_name + " does not exist.")
         else:
             raise
     except TypeError as ex:
         print(S3_BUCKET, type(S3_BUCKET))
         print(archive_name, type(archive_name))
+        raise ex
 
     os.chdir(APP_ROOT)
 
@@ -160,19 +179,6 @@ def send_archive(directory, sortop):
     return render_template("nofile.html")
 
 if __name__ == "__main__":
-    try:
-        os.mkdir(ARCHIVE_FOLDER)
-    except:
-        print('archive already exists')
-    
-    try:
-        os.mkdir(UPLOAD_FOLDER)
-    except:
-        print('uploads already exists')
-
-    try:
-        os.mkdir(REPLAY_FOLDER)
-    except:
-        print('replays already exists')
+    app = setup_app()
 
     app.run(host='0.0.0.0', port=80, debug=True)
