@@ -45,13 +45,12 @@
          (filetype == "application/zip-compressed");
       }
 
-      function file_is_valid() {
+      function validate_and_upload() {
             let file = _("replays").files[0];
 
             if (file.size > 100000000) {
               add_err("archive size must be less than 100MB")
             } else if (!is_zip(file.type)) {
-              console.log(file.type, file.name)
               add_err("file must be a .zip archive")
             } else {
 
@@ -66,6 +65,9 @@
               _("progress__bar").style.display = "inline-block";
               _("status").style.display = "inline-block";
               _("loaded_n_total").style.display = "inline-block";
+
+              //upload file
+              upload_file();
             }
         };
 
@@ -147,7 +149,7 @@
         </ul>
 
         <form id="replay__zone" method="post" enctype="multipart/form-data">
-            <input type="file" id="replays" name="replays" onchange="file_is_valid();upload_file()"/>
+            <input type="file" id="replays" name="replays" onchange="validate_and_upload()"/>
             <label id="replays__labl" for="replays" class="dragndrop"><strong>Click here</strong> to upload replays in .zip file</label>
             <progress id="progress__bar" value="0" max="100" style="width:300px;display:none;"></progress>
             <h3 id="status" style="display:none;"></h3>
