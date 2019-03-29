@@ -92,12 +92,15 @@ def home():
 @app.route("/upload", methods=['GET', 'POST'])
 def upload():
     if request.method == 'POST':
+        if ('perm' not in request.form) or (request.form['perm'] != 'yes'):
+            return json.dumps({'msg':'permission to store archive is required'}), 500
+
         if 'replays' not in request.files:
             return json.dumps({'msg':'No .zip file uploaded'}), 500
         
         replays = request.files['replays']
         if replays.filename == '':
-            return json.dumps({'msg':'the .zip file needs a filename'}), 503
+            return json.dumps({'msg':'the .zip file needs a filename'}), 500
 
         if replays and valid_file(replays.filename):
             filename = secure_filename(replays.filename)
@@ -105,7 +108,7 @@ def upload():
 
             return json.dumps({'msg':'success'}), 200
         else:
-            return json.dumps({'msg':'please upload a .zip file of SC2 replays'}), 503
+            return json.dumps({'msg':'please upload a .zip file of SC2 replays'}), 500
     
     return render_template("nofile.html")
 
@@ -181,4 +184,4 @@ def send_archive(directory, sortop):
 if __name__ == "__main__":
     app = setup_app()
 
-    app.run(host='0.0.0.0', port=5015, debug=True)
+    app.run(debug=True)

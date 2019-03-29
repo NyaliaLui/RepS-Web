@@ -187,3 +187,9 @@ body {
 #progress__bar p.failed {
 	background: #c00 none 0 0 no-repeat;
 }
+
+#store__perm {
+  color:white;
+  font-size: 1.2em;
+  padding-top: 10px;
+}

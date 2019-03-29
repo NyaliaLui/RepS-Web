@@ -48,18 +48,22 @@
       function validate_and_upload() {
             let file = _("replays").files[0];
 
-            if (file.size > 100000000) {
-              add_err("archive size must be less than 100MB")
+            if (_("perm").checked != true) {
+              add_err("permission to store archive is required");
+              _("replays").value = null;
+            } else if (file.size > 100000000) {
+              add_err("archive size must be less than 100MB");
             } else if (!is_zip(file.type)) {
-              add_err("file must be a .zip archive")
+              add_err("file must be a .zip archive");
             } else {
 
               clear_errs();
 
               //hide replays input
-              _("replay__zone").style.outline = "none";
+              _("replay__zone").style.display = "none";
               _("replays").style.display = "none";
               _("replays__labl").style.display = "none"
+              _("store__perm").style.display = "none";
 
               //show progress bar
               _("progress__bar").style.display = "inline-block";
@@ -77,6 +81,7 @@
           _("archivename").value = file.name;
           
           let formdata = new FormData();
+          formdata.append("perm", _("perm").value);
           formdata.append("replays", file);
 
           let ajax = new XMLHttpRequest();
@@ -148,9 +153,12 @@
           {% endwith %}
         </ul>
 
-        <form id="replay__zone" method="post" enctype="multipart/form-data">
-            <input type="file" id="replays" name="replays" onchange="validate_and_upload()"/>
-            <label id="replays__labl" for="replays" class="dragndrop"><strong>Click here</strong> to upload replays in .zip file</label>
+        <form method="post" enctype="multipart/form-data">
+            <div id="replay__zone">
+              <input type="file" id="replays" name="replays" onchange="validate_and_upload()"/>
+              <label id="replays__labl" for="replays" class="dragndrop"><strong>Click here</strong> to upload replays in .zip file</label>
+            </div>
+            <p id="store__perm"><input id="perm" type="checkbox" name="perm" value="yes" required>   I give RepS permission to store my archive file</p>
             <progress id="progress__bar" value="0" max="100" style="width:300px;display:none;"></progress>
             <h3 id="status" style="display:none;"></h3>
             <p id="loaded_n_total" style="display:none;"></p>
