@@ -22,6 +22,7 @@ class FolderProcessor:
         self.__inspector = None
         self.__dest_folder = dest
         self.__platform = platform.system()
+        self.__rename_enabled = False
 
     #create_folders
     # @params - no parameters
@@ -50,22 +51,24 @@ class FolderProcessor:
             for replay in self.__folders[key]:
                 cp(replay.local_path, folder)
 
-                #give the replays a more descriptive name
-                old_name = ''
-                if self.__platform is 'Windows':
-                    old_name = join(folder, replay.local_path.split('\\')[-1])
-                else:
-                    old_name = join(folder, replay.local_path.split('/')[-1])
+                #only rename replays if enabled
+                if self.__rename_enabled:
+                    #give the replays a more descriptive name
+                    old_name = ''
+                    if self.__platform is 'Windows':
+                        old_name = join(folder, replay.local_path.split('\\')[-1])
+                    else:
+                        old_name = join(folder, replay.local_path.split('/')[-1])
 
-                #only assign numbers if there are more than one copy of replays
-                #with the same players in a 1v1 match
-                if replay.series_flag > -1:
-                    temp = replay.replay_name.split('.')[0]
-                    temp = temp + (' (%d)' % (replay.series_flag+1)) + '.SC2Replay'
-                    replay.replay_name = temp
+                    #only assign numbers if there are more than one copy of replays
+                    #with the same players in a 1v1 match
+                    if replay.series_flag > -1:
+                        temp = replay.replay_name.split('.')[0]
+                        temp = temp + (' (%d)' % (replay.series_flag+1)) + '.SC2Replay'
+                        replay.replay_name = temp
 
-                new_name = join(folder, replay.replay_name)
-                rename(old_name, new_name)
+                    new_name = join(folder, replay.replay_name)
+                    rename(old_name, new_name)
                 
     #depth_first_search
     # @params - the path to start the search and a temporary intermediate path used to
@@ -170,30 +173,39 @@ class FolderProcessor:
     #organize_replays
     # @params - the relative path to the folder of replays to search and
     #   the type of sort to conduct, either by matchup or by player
+    #   with repay renaming set to false by default
     # @return - no return values
     # @purpose - organize all the replays in a given folder of SC2 replays.
-    def organize_replays(self, folder_path, sort_type):
+    def organize_replays(self, folder_path, sortop, enable_rename=False):
         
         if (folder_path is None) or (folder_path is ''):
             raise Exception('folder_path must be defined and non-empty')
         
-        if (sort_type is None) or (sort_type not in ('p', 'm')):
-            raise Exception('sort_type must be either {p|m}')
+        if (sortop is None) or (sortop not in ('p', 'm')):
+            raise Exception('sortop must be either {p|m}')
+
+        if type(enable_rename) is not bool:
+            raise Exception('enable_rename must be type bool')
 
         #form the proper inspector
-        if sort_type is 'p':
+        if sortop is 'p':
             self.__inspector = NameInspector()
         else:
             self.__inspector = MatchupInspector()
-        
+
+        #set file rename config
+        self.__rename_enabled = enable_rename
+                
         #perform depth first search for replays
         self.__depth_first_search(folder_path, '')
 
-        #sort each replay in each folder chronologically
-        self.__sort_chronogolocally()
+        #only sort chronologically if rename is enabled
+        if self.__rename_enabled:
+            #sort each replay in each folder chronologically
+            self.__sort_chronogolocally()
 
-        #mark replays with series tag if applicable
-        self.__mark_series()
+            #mark replays with series tag if applicable
+            self.__mark_series()
 
         #create the necessary subfolders
         self.__create_folders()

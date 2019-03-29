@@ -67,10 +67,10 @@ class Dispatcher:
         os.chdir(self._root)
 
     #dispatch
-    # @params - name of the archive and sort option
+    # @params - name of the archive and sort option with repay renaming set to false by default
     # @return - the directory which holds the sorted archive
     # @purpose - extract, sort, and re-zip the archive
-    def dispatch(self, archive_name, sortop):
+    def dispatch(self, archive_name, sortop, enable_rename=False):
 
         directory = archive_name[:-4]
 
@@ -80,7 +80,7 @@ class Dispatcher:
         #run RepS
         target = os.path.join(self._replay_folder, directory)
         fp = FolderProcessor(target)
-        fp.organize_replays(target, sortop)
+        fp.organize_replays(target, sortop, enable_rename)
 
         #zip /Replays
         self.__zip_replays(directory)

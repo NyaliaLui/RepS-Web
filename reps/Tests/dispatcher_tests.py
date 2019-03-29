@@ -35,3 +35,15 @@ class DispatcherTestCase(unittest.TestCase):
         move(oldzip, newzip)
 
         rmtree(os.path.join(self._replay_folder, name))
+
+    def test_sort_with_renaming(self):
+        name = self.manager.dispatch(self.sample_archive, 'm', True)
+        self.assertTrue('syalper-' == name[:-1])
+        self.assertTrue(name[-1:].isdigit())
+
+        #rename the zip archive and remove inside replays for futher testing
+        oldzip = os.path.join(self._upload_folder, name+'.zip')
+        newzip = os.path.join(self._upload_folder, self.sample_archive)
+        move(oldzip, newzip)
+
+        rmtree(os.path.join(self._replay_folder, name))
