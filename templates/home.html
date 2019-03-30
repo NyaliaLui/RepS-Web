@@ -40,10 +40,20 @@
           _("rename__check").style.display = "inline-block";
       }
 
-      function is_zip(filetype) {
+      function is_zip(file) {
+        
+        let filetype = file.type;
+        if (file.type == "") {
+          filetype = file.name.split(".").pop();
+        }
+
+        console.log(filetype);
+
         return (filetype == "application/zip") ||
          (filetype == "application/x-zip-compressed") ||
-         (filetype == "application/zip-compressed");
+         (filetype == "application/zip-compressed") ||
+         (filetype == "application/x-rar-compressed") ||
+         (filetype == "rar") || (filetype == "zip");
       }
 
       function validate_file() {
@@ -51,8 +61,10 @@
 
             if (file.size > 100000000) {
               add_err("archive size must be less than 100MB");
-            } else if (!is_zip(file.type)) {
+              return;
+            } else if (!is_zip(file)) {
               add_err("file must be a .zip archive");
+              return;
             }
             
             //go ahead and upload the file if the checkbox

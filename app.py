@@ -15,7 +15,7 @@ UPLOAD_FOLDER = os.path.join(APP_ROOT, 'uploads')
 REPLAY_FOLDER = os.path.join(APP_ROOT, 'replays')
 ARCHIVE_FOLDER = os.path.join(APP_ROOT, 'archive')
 REPLAYS_ZIP = 'Replays.zip'
-ALLOWED_EXTENSIONS = set(['zip'])
+ALLOWED_EXTENSIONS = set(['zip', 'rar'])
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'GNcC79NhRYEo7fIA3BQdKvlvIgRy'
