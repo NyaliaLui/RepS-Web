@@ -191,5 +191,11 @@ body {
 #store__perm {
   color:white;
   font-size: 1.2em;
-  padding-top: 10px;
+  padding-top: 1.8em;
+}
+
+#rename__check {
+  color:white;
+  font-size: 1.2em;
+  padding-top: 2em;
 }

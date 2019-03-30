@@ -117,10 +117,17 @@ def org_player():
     if request.method == 'POST':
     
         archivename = request.form['archivename']
+        rename_enabled = True
+        #rename disabled if it wasn't set (non exists)
+        try:
+            request.form['rename']
+        except:
+            rename_enabled = False
+
         filename = secure_filename(archivename)
         name = ''
         try:
-            name = ARCHIVE_MANAGER.dispatch(filename, 'p')
+            name = ARCHIVE_MANAGER.dispatch(filename, 'p', rename_enabled)
         except Exception:
             flash('something went wrong. make sure the zip archive doesn\'t have a folder named Replays')
             return redirect(url_for('home'))
@@ -134,9 +141,16 @@ def org_matchup():
     if request.method == 'POST':
     
         archivename = request.form['archivename']
+        rename_enabled = True
+        #rename disabled if it wasn't set (non exists)
+        try:
+            request.form['rename']
+        except:
+            rename_enabled = False
+
         filename = secure_filename(archivename)
         name = ''
-        name = ARCHIVE_MANAGER.dispatch(filename, 'm')
+        name = ARCHIVE_MANAGER.dispatch(filename, 'm', rename_enabled)
 
         return redirect(url_for('thankyou', directory=name))
 
@@ -184,4 +198,4 @@ def send_archive(directory, sortop):
 if __name__ == "__main__":
     app = setup_app()
 
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=80, debug=True)
