@@ -14,7 +14,6 @@ ARCHIVE_MANAGER = Dispatcher(APP_ROOT)
 UPLOAD_FOLDER = os.path.join(APP_ROOT, 'uploads')
 REPLAY_FOLDER = os.path.join(APP_ROOT, 'replays')
 ARCHIVE_FOLDER = os.path.join(APP_ROOT, 'archive')
-REPLAYS_ZIP = 'Replays.zip'
 ALLOWED_EXTENSIONS = set(['zip', 'rar'])
 
 app = Flask(__name__)
@@ -96,11 +95,11 @@ def upload():
             return json.dumps({'msg':'permission to store archive is required'}), 500
 
         if 'replays' not in request.files:
-            return json.dumps({'msg':'No .zip file uploaded'}), 500
+            return json.dumps({'msg':'No archive uploaded'}), 500
         
         replays = request.files['replays']
         if replays.filename == '':
-            return json.dumps({'msg':'the .zip file needs a filename'}), 500
+            return json.dumps({'msg':'the archive needs a filename'}), 500
 
         if replays and valid_file(replays.filename):
             filename = secure_filename(replays.filename)
@@ -108,7 +107,7 @@ def upload():
 
             return json.dumps({'msg':'success'}), 200
         else:
-            return json.dumps({'msg':'please upload a .zip file of SC2 replays'}), 500
+            return json.dumps({'msg':'please upload a .zip or .rar file of SC2 replays'}), 500
     
     return render_template("nofile.html")
 
@@ -126,13 +125,14 @@ def org_player():
 
         filename = secure_filename(archivename)
         name = ''
+        ext = filename[-4:]
         try:
             name = ARCHIVE_MANAGER.dispatch(filename, 'p', rename_enabled)
         except Exception:
-            flash('something went wrong. make sure the zip archive doesn\'t have a folder named Replays')
+            flash('something went wrong. make sure the archive doesn\'t have a folder named Replays')
             return redirect(url_for('home'))
 
-        return redirect(url_for('thankyou', directory=name))
+        return redirect(url_for('thankyou', directory=name, extension=ext))
 
     return render_template("nofile.html")
 
@@ -150,22 +150,30 @@ def org_matchup():
 
         filename = secure_filename(archivename)
         name = ''
-        name = ARCHIVE_MANAGER.dispatch(filename, 'm', rename_enabled)
+        ext = filename[-4:]
+        try:
+            name = ARCHIVE_MANAGER.dispatch(filename, 'm', rename_enabled)
+        except Exception:
+            flash('something went wrong. make sure the archive doesn\'t have a folder named Replays')
+            return redirect(url_for('home'))
 
-        return redirect(url_for('thankyou', directory=name))
+        return redirect(url_for('thankyou', directory=name, extension=ext))
 
     return render_template("nofile.html")
     
-@app.route("/replays/<directory>/Replays")
-def download(directory):
+@app.route("/replays/<directory>/<extension>/Replays")
+def download(directory, extension):
 
     location = os.path.join(REPLAY_FOLDER, directory)
 
-    return send_from_directory(location, REPLAYS_ZIP)
+    if extension == '.zip':
+        return send_from_directory(location, 'Replays.zip')
+    elif extension == '.rar':
+        return send_from_directory(location, 'Replays.rar')
 
-@app.route("/thankyou/<directory>")
-def thankyou(directory):
-    return render_template("thankyou.html", result=directory)
+@app.route("/thankyou/<directory>/<extension>")
+def thankyou(directory, extension):
+    return render_template("thankyou.html", result=directory, filetype=extension)
 
 @app.route("/help")
 def help():

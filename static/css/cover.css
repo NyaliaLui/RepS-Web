@@ -199,3 +199,8 @@ body {
   font-size: 1.2em;
   padding-top: 2em;
 }
+
+#perm__reminder {
+  display:none;
+  font-size: 1.3em;
+}
