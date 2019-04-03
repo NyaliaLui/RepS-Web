@@ -1,9 +1,9 @@
 from multiprocessing import Queue
 from folder_processor import FolderProcessor
+from reps.archiver import ZipArchiver, RARArchiver
 from renamer import FileRenamer
 import os
 from shutil import move
-from zipfile import ZipFile
 
 #Dispatcher
 # @purpose - an object manager that maintains a record of serveral Sorters. Using the dispatch() method
@@ -22,6 +22,7 @@ class Dispatcher:
         self._replay_folder = os.path.join(root, 'replays')
         self._replays_zip = 'Replays.zip'
         self._renamer = FileRenamer()
+        self._archiver = None
 
     #extract_replays
     # @params - the source folder where zip archive is and destination folder to extract replays to
@@ -31,38 +32,22 @@ class Dispatcher:
         file_path = os.path.join(self._upload_folder, src)
         target_path = os.path.join(self._replay_folder, dest)
 
-        with ZipFile(file_path, 'r') as zip:
-            zip.extractall(path=target_path)
+        if self._archiver is None:
+            raise Exception('archiver was not defined')
+        else:
+            self._archiver.extract(file_path, target_path)
 
-    #get_all_file_paths
-    # @params - the directory to walk through
-    # @return - list of file paths
-    # @purpose - to determine the paths to all files in a directory
-    def __get_all_file_paths(self, directory):
-    
-        file_paths = [] 
-    
-        for root, directories, files in os.walk(directory): 
-            for filename in files: 
-                filepath = os.path.join(root, filename) 
-                file_paths.append(filepath) 
-    
-        return file_paths 
-
-    #zip_replays
-    # @params - the directory where zipping should start
+    #archive_replays
+    # @params - the directory where archiving should start
     # @return - no return value
-    # @purpose - zip a directory into a .zip file
-    def __zip_replays(self, dirname):
+    # @purpose - form an archive of SC2 replays
+    def __archive_replays(self, dirname):
         dir_path = os.path.join(self._replay_folder, dirname)
+        file_name = 'Replays' + self._archiver.extension
+
         os.chdir(dir_path)
 
-        file_paths = self.__get_all_file_paths('Replays')
-
-        with ZipFile(self._replays_zip, 'w') as zip: 
-            # writing each file one by one 
-            for file in file_paths:
-                zip.write(file)
+        self._archiver.create(file_name, 'Replays')
 
         os.chdir(self._root)
 
@@ -73,6 +58,14 @@ class Dispatcher:
     def dispatch(self, archive_name, sortop, enable_rename=False):
 
         directory = archive_name[:-4]
+        extension = archive_name[-4:]
+
+        if extension == '.zip':
+            self._archiver = ZipArchiver()
+            print("zip found")
+        elif extension == '.rar':
+            self._archiver = RARArchiver()
+            print("rar found")
 
         #unzip file to /replays/<archive_name w/o extension>
         self.__extract_replays(src=archive_name, dest=directory)
@@ -83,7 +76,7 @@ class Dispatcher:
         fp.organize_replays(target, sortop, enable_rename)
 
         #zip /Replays
-        self.__zip_replays(directory)
+        self.__archive_replays(directory)
 
         #rename files for archival purposes
         name = self._renamer.next_available_name()
@@ -91,9 +84,9 @@ class Dispatcher:
         newdir = os.path.join(self._replay_folder, name)
         move(olddir, newdir)
 
-        oldzip = os.path.join(self._upload_folder, archive_name)
-        newzip = os.path.join(self._upload_folder, name+'.zip')
-        move(oldzip, newzip)
+        old_archive = os.path.join(self._upload_folder, archive_name)
+        new_archive = os.path.join(self._upload_folder, name+extension)
+        move(old_archive, new_archive)
 
         #return the directory where sorted replays were uploaded
         return name
