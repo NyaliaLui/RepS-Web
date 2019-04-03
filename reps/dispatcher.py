@@ -66,6 +66,8 @@ class Dispatcher:
         elif extension == '.rar':
             self._archiver = RARArchiver()
             print("rar found")
+        else:
+            raise Exception("archive must have a valid extension")
 
         #unzip file to /replays/<archive_name w/o extension>
         self.__extract_replays(src=archive_name, dest=directory)
