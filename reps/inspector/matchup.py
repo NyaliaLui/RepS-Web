@@ -1,10 +1,14 @@
+from race_translator import RaceTranslator
+
 #Matchup Inspector
 # @purpose - the inspector which is only concerned with
 #the 1v1 matchup of a replay.
 class MatchupInspector:
 
+    #translator - the race translator
+
     def __init__(self):
-        pass
+        self.__translator = RaceTranslator()
 
     #sort
     # @params - a list of SC2 races
@@ -36,7 +40,8 @@ class MatchupInspector:
         races = []
         
         for player in replay.players:
-            races.append(player['race'])
+            r = self.__translator.translate(player['race'])
+            races.append(r)
 
         #we sort so matchups such as PvT and TvP
         #will be considered in the same folder

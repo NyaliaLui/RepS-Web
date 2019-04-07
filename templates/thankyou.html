@@ -27,6 +27,7 @@
         <div class="inner">
           <a class="masthead-brand" href="/" style="cursor: pointer;">RepS</ha>
           <nav class="nav nav-masthead justify-content-center">
+            <a class="nav-link" href="/premade">Premade Archives</a>
             <a class="nav-link" href="/help">HELP!</a>
             <a class="nav-link" href="/about">About</a>
           </nav>
@@ -35,15 +36,15 @@
 
       <main role="main" class="inner cover">
         <p id="thank__text"><strong>Thank You</strong> for organizing your SC2 replays with RepS.
-        <a id="thank__link" href="{{ url_for('download', directory=result)}}">Click here</a> to start your download</p>
+        <a id="thank__link" href="{{ url_for('download', directory=result, extension=filetype)}}">Click here</a> to start your download</p>
 
-        <p>For comments, questions, and suggestions message <a id="thank__link" href="https://twitter.com/noticals">@Noticals</a> on twitter.</p>
+        <p>For comments, questions, and suggestions message <a id="thank__link" href="https://twitter.com/sc2reps">@sc2reps</a> on twitter.</p>
 
       </main>
 
       <footer class="mastfoot mt-auto">
         <div class="inner">
-          <p>RepS designed by <a href="https://twitter.com/noticals">@Noticals</a>.</p>
+          <p>Follow us on twitter <a href="https://twitter.com/sc2reps">@sc2reps</a>.</p>
           <p>Cover template for <a href="https://getbootstrap.com/">Bootstrap</a>, by <a href="https://twitter.com/mdo">@mdo</a>.</p>
         </div>
       </footer>

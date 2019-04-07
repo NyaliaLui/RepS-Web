@@ -3,8 +3,8 @@
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="RepS is a SC2 replay organizer">
-    <meta name="author" content="Nyalia Lui">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
     <title>RepS</title>
 
@@ -15,6 +15,148 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/cover.css') }}">
   </head>
 
+  <script>
+      function _(el) {
+        return document.getElementById(el);
+      }
+      function add_err(msg) {
+        let err = document.createElement('li');
+        err.innerText = msg;
+        let errwindow = _("err__wndow");
+        errwindow.appendChild(err);
+      }
+
+      function clear_errs() {
+        let errwindow = _("err__wndow");
+        while (errwindow.firstChild) {
+          errwindow.removeChild(errwindow.firstChild);
+        }
+      }
+
+      function show_btns() {
+          let em = document.getElementsByClassName("sort__btn");
+          em[0].style.display = "inline-block";
+          em[1].style.display = "inline-block";
+          _("rename__check").style.display = "inline-block";
+      }
+
+      function is_archive(file) {
+        
+        let filetype = file.type;
+        if (file.type == "") {
+          filetype = file.name.split(".").pop();
+        }
+
+        console.log(filetype);
+
+        return (filetype == "application/zip") ||
+         (filetype == "application/x-zip-compressed") ||
+         (filetype == "application/zip-compressed") ||
+         (filetype == "application/x-rar-compressed") ||
+         (filetype == "rar") || (filetype == "zip");
+      }
+
+      function validate_file() {
+            let file = _("replays").files[0];
+
+            if (file.size > 100000000) {
+              add_err("archive size must be less than 100MB");
+              return;
+            } else if (!is_archive(file)) {
+              add_err("file must be a .zip or .rar archive");
+              return;
+            }
+            
+            //go ahead and upload the file if the checkbox
+            //is checked
+            if (_("perm").checked == true) {
+              upload_file();
+            } else {
+              _("replays").style.display = "none";
+              _("replays__labl").style.display = "none"
+              _("perm__reminder").style.display = "inline-block";
+            }
+        };
+
+        function validate_checkbox() {
+          if (_("perm").checked != true) {
+            add_err("permission to store archive is required");
+            _("replays").value = null;
+          }
+
+          //upload file if replays is set
+          if (_("replays").files.length == 1) {
+            upload_file();
+          } else if (_("replays").files.length > 1) {
+            add_err("only upload 1 archive");
+          }
+        }
+
+        function upload_file() {
+          clear_errs();
+
+          //hide replays input
+          _("replay__zone").style.display = "none";
+          _("replays").style.display = "none";
+          _("replays__labl").style.display = "none"
+          _("store__perm").style.display = "none";
+
+          //show progress bar
+          _("progress__bar").style.display = "inline-block";
+          _("status").style.display = "inline-block";
+          _("loaded_n_total").style.display = "inline-block";
+
+          let file = _("replays").files[0];
+          _("archivename").value = file.name;
+          
+          let formdata = new FormData();
+          formdata.append("perm", _("perm").value);
+          formdata.append("replays", file);
+
+          let ajax = new XMLHttpRequest();
+          ajax.upload.addEventListener("progress", progress_handler, false);
+          ajax.addEventListener("load", complete_handler, false);
+          ajax.addEventListener("error", err_handler, false);
+          ajax.addEventListener("abort", abort_handler, false);
+          ajax.open("POST", '/upload');
+          ajax.send(formdata);
+        }
+
+        function progress_handler(event) {
+          _("loaded_n_total").innerHTML = "Uploaded: " + event.loaded + " / " + event.total;
+          let percent = (event.loaded / event.total) * 100;
+          _("progress__bar").value = Math.round(percent);
+          _("status").innerHTML = Math.round(percent) + "% uploaded";
+        }
+
+        function complete_handler(event) {
+          let res = JSON.parse(event.target.responseText);
+          
+          if (res.msg != "success") {
+            add_err(res.msg);
+          } else {
+            //hide progress bar
+            _("progress__bar").style.display = "none";
+            _("status").style.display = "none";
+            _("loaded_n_total").style.display = "none";
+
+            //show sortop btns
+            show_btns();
+
+            //clear file out
+            _("replay__zone").removeChild(_("replays"));
+          }
+        }
+
+        function err_handler(event) {
+          add_err("Upload Failed");
+        }
+
+        function abort_handler(event) {
+          add_err("Upload Aborted");
+        }
+  </script>
+
   <body class="text-center">
 
     <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
@@ -23,28 +165,48 @@
             <a class="masthead-brand" href="/" style="cursor: pointer;">RepS</ha>
           <nav class="nav nav-masthead justify-content-center">
             <a class="nav-link" href="/premade">Premade Archives</a>
+            <a class="nav-link" href="/help">HELP!</a>
             <a class="nav-link" href="/about">About</a>
           </nav>
         </div>
       </header>
 
       <main id="main__window" role="main" class="inner cover">
-        <h1>RepS replay organizer</h1>
-        <h1 id="thank__link">Coming Soon!</h1>
-        <p id="about__text">RepS is a replay organizer that will look at all SC2 replays in a zip archive and sort them.
-          The creator, Nyalia "Noticals" Lui, has been a SC2 fan since 2011 but has grown tired searching through
-          large replay packs for the matches and series he wants to watch. This tool is designed to make replay organization easier for both 
-          streamers and viewers alike.
-        </p>
+        <ul class=flashes id="err__wndow">
+          {% with messages = get_flashed_messages() %}
+            {% if messages %}      
+              {% for message in messages %}
+                <li>{{ message }}</li>
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
+        </ul>
+
+        <form method="post" enctype="multipart/form-data">
+            <div id="replay__zone">
+              <input type="file" id="replays" name="replays" onchange="validate_file()"/>
+              <label id="replays__labl" for="replays" class="dragndrop"><strong>Click here</strong> to upload replays in .zip or .rar file</label>
+              <p id="perm__reminder">permission to store archive is <u style="color:palevioletred;">required</u></p>
+            </div>
+            <p id="store__perm"><input id="perm" type="checkbox" name="perm" value="yes" onclick="validate_checkbox()" required>   I give RepS permission to store my archive file</p>
+            <progress id="progress__bar" value="0" max="100" style="width:300px;display:none;"></progress>
+            <h3 id="status" style="display:none;"></h3>
+            <p id="loaded_n_total" style="display:none;"></p>
+            <input type="text" id="archivename" name="archivename" style="display:none;">
+            <button class="sort__btn btn btn-lg btn-secondary" formaction="/sort/player" style="display:none;" >Sort by player name</button>
+            <button class="sort__btn btn btn-lg btn-secondary" formaction="/sort/matchup" style="display:none;">Sort by SC2 matchup</button>
+            <p id="rename__check" style="display:none;"><input id="rename" type="checkbox" name="rename" value="yes">   Yes, I want RepS to rename my replays.</p>
+        </form>
       </main>
 
       <footer class="mastfoot mt-auto">
         <div class="inner">
-          <p>RepS designed by <a href="https://twitter.com/noticals">@Noticals</a>.</p>
+          <p>Follow us on twitter <a href="https://twitter.com/sc2reps">@sc2reps</a>.</p>
           <p>Cover template for <a href="https://getbootstrap.com/">Bootstrap</a>, by <a href="https://twitter.com/mdo">@mdo</a>.</p>
         </div>
       </footer>
     </div>
+
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
