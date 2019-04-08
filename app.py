@@ -203,6 +203,11 @@ def send_archive(directory, sortop):
 
     return render_template("nofile.html")
 
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(APP_ROOT, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 if __name__ == "__main__":
     app = setup_app()
 
