@@ -2,7 +2,6 @@ from os import listdir, chdir, mkdir, rename
 from os.path import isdir, join
 from shutil import copy as cp
 from reps.inspector import NameInspector, MatchupInspector
-from reps_exception import RepsError
 from replay import Replay, is_replay, copy_replay
 import datetime
 import platform
@@ -91,7 +90,7 @@ class FolderProcessor:
 
             if isdir(join(current_path, df)):
                 if 'Replays' == df:
-                    raise RepsError(['Replays folder is already formed', start_path])
+                    raise Exception('Replays folder is already formed')
                 else:
                     dirs.append(df)
 
@@ -180,13 +179,13 @@ class FolderProcessor:
     def organize_replays(self, folder_path, sortop, enable_rename=False):
         
         if (folder_path is None) or (folder_path is ''):
-            raise RepsError(['folder_path must be defined and non-empty', folder_path])
+            raise Exception('folder_path must be defined and non-empty')
         
         if (sortop is None) or (sortop not in ('p', 'm')):
-            raise RepsError(['sortop must be either {p|m}', folder_path])
+            raise Exception('sortop must be either {p|m}')
 
         if type(enable_rename) is not bool:
-            raise RepsError(['enable_rename must be type bool', folder_path])
+            raise Exception('enable_rename must be type bool')
 
         #form the proper inspector
         if sortop is 'p':
@@ -208,8 +207,5 @@ class FolderProcessor:
             #mark replays with series tag if applicable
             self.__mark_series()
 
-        try:
-            #create the necessary subfolders
-            self.__create_folders()
-        except Exception as ex:
-            raise RepsError([str(ex), folder_path])
+        #create the necessary subfolders
+        self.__create_folders()

@@ -34,7 +34,8 @@ class Dispatcher:
         target_path = os.path.join(self._replay_folder, dest)
 
         if self._archiver is None:
-            raise RepsError(['archiver was not defined', file_path])
+            names = {'msg':'archiver was not defined', 'uploads': [file_path], 'replays': []}
+            raise RepsError(names)
         else:
             self._archiver.extract(file_path, target_path)
 
@@ -68,29 +69,53 @@ class Dispatcher:
             self._archiver = RARArchiver()
             print("rar found")
         else:
-            file_path = os.path.join(self._upload_folder, archive_name)
-            raise RepsError(["archive must have a valid extension", file_path])
+            upload_file_path = os.path.join(self._upload_folder, archive_name)
+            names = {'msg':'archive must have a valid extension', 'uploads': [upload_file_path], 'replays': []}
+            raise RepsError(names)
 
         #unzip file to /replays/<archive_name w/o extension>
         self.__extract_replays(src=archive_name, dest=directory)
 
-        #run RepS
-        target = os.path.join(self._replay_folder, directory)
-        fp = FolderProcessor(target)
-        fp.organize_replays(target, sortop, enable_rename)
+        target = ''
+
+        try:
+            #run RepS
+            target = os.path.join(self._replay_folder, directory)
+            fp = FolderProcessor(target)
+            fp.organize_replays(target, sortop, enable_rename)
+        except Exception as ex:
+            upload_file_path = os.path.join(self._upload_folder, archive_name)
+            replay_file_path = os.path.join(self._replay_folder, directory)
+            names = {'msg':str(ex), 'uploads': [upload_file_path], 'replays': [replay_file_path]}
+            raise RepsError(names)
 
         #zip /Replays
         self.__archive_replays(directory)
+        olddir = ''
+        newdir = ''
+        old_archive = ''
+        new_archive = ''
 
-        #rename files for archival purposes
-        name = self._renamer.next_available_name()
-        olddir = target
-        newdir = os.path.join(self._replay_folder, name)
-        move(olddir, newdir)
+        try:
+            #rename files for archival purposes
+            name = self._renamer.next_available_name()
+            olddir = target
+            newdir = os.path.join(self._replay_folder, name)
+            move(olddir, newdir)
+        except Exception as ex:
+            upload_file_path = os.path.join(self._upload_folder, archive_name)
+            replay_file_path = os.path.join(self._replay_folder, directory)
+            names = {'msg':str(ex), 'uploads': [upload_file_path], 'replays': [replay_file_path]}
+            raise RepsError(names)
 
-        old_archive = os.path.join(self._upload_folder, archive_name)
-        new_archive = os.path.join(self._upload_folder, name+extension)
-        move(old_archive, new_archive)
+        try:
+            old_archive = os.path.join(self._upload_folder, archive_name)
+            new_archive = os.path.join(self._upload_folder, name+extension)
+            move(old_archive, new_archive)
+        except Exception as ex:
+            upload_file_path = os.path.join(self._upload_folder, archive_name)
+            names = {'msg':str(ex), 'uploads': [upload_file_path], 'replays': [newdir]}
+            raise RepsError(names)
 
         #return the directory where sorted replays were uploaded
         return name

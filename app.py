@@ -46,8 +46,11 @@ def setup_app():
 
     return app
 
-def recover_state(filenames):
-    for filename in filenames:
+def recover_state(fileshash):
+    for filename in fileshash['uploads']:
+        os.remove(filename)
+
+    for filename in fileshash['replays']:
         rmtree(filename)
 
 def create_subfolders(directory):
@@ -135,8 +138,8 @@ def org_player():
         try:
             name = ARCHIVE_MANAGER.dispatch(filename, 'p', rename_enabled)
         except RepsError as ex:
-            recover_state(ex.names[1:])
-            flash(ex[0] + '. try again in 60 seconds.')
+            recover_state(ex.names)
+            flash(ex.names['msg'] + '. try again in 60 seconds.')
             return redirect(url_for('home'))
         except Exception:
             flash('Unknown error occured. try again in 60 seconds.')
@@ -164,8 +167,8 @@ def org_matchup():
         try:
             name = ARCHIVE_MANAGER.dispatch(filename, 'm', rename_enabled)
         except RepsError as ex:
-            recover_state(ex.names[1:])
-            flash(ex[0] + '. try again in 60 seconds.')
+            recover_state(ex.names)
+            flash(ex.names['msg'] + '. try again in 60 seconds.')
             return redirect(url_for('home'))
         except Exception:
             flash('Unknown error occured. try again in 60 seconds.')
