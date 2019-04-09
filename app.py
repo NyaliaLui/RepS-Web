@@ -2,12 +2,14 @@ import os
 from flask import Flask, render_template, flash, request, redirect, url_for, send_from_directory
 from werkzeug.utils import secure_filename
 from reps import Dispatcher
+from reps import RepsError
 import logging
 import sys
 import boto3
 from botocore.client import Config
 import botocore
 import json
+from shutil import rmtree
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 ARCHIVE_MANAGER = Dispatcher(APP_ROOT)
@@ -44,6 +46,10 @@ def setup_app():
 
     return app
 
+def recover_state(filenames):
+    for filename in filenames:
+        rmtree(filename)
+
 def create_subfolders(directory):
     os.chdir(ARCHIVE_FOLDER)
 
@@ -76,7 +82,7 @@ def transfer_from_s3(archive_name, local_dest):
         if e.response['Error']['Code'] == "404":
             print(archive_name + " does not exist.")
         else:
-            raise
+            raise e
     except TypeError as ex:
         print(S3_BUCKET, type(S3_BUCKET))
         print(archive_name, type(archive_name))
@@ -128,8 +134,12 @@ def org_player():
         ext = filename[-4:]
         try:
             name = ARCHIVE_MANAGER.dispatch(filename, 'p', rename_enabled)
+        except RepsError as ex:
+            recover_state(ex.names[1:])
+            flash(ex[0] + '. try again in 60 seconds.')
+            return redirect(url_for('home'))
         except Exception:
-            flash('something went wrong. make sure the archive doesn\'t have a folder named Replays')
+            flash('Unknown error occured. try again in 60 seconds.')
             return redirect(url_for('home'))
 
         return redirect(url_for('thankyou', directory=name, extension=ext))
@@ -153,8 +163,12 @@ def org_matchup():
         ext = filename[-4:]
         try:
             name = ARCHIVE_MANAGER.dispatch(filename, 'm', rename_enabled)
+        except RepsError as ex:
+            recover_state(ex.names[1:])
+            flash(ex[0] + '. try again in 60 seconds.')
+            return redirect(url_for('home'))
         except Exception:
-            flash('something went wrong. make sure the archive doesn\'t have a folder named Replays')
+            flash('Unknown error occured. try again in 60 seconds.')
             return redirect(url_for('home'))
 
         return redirect(url_for('thankyou', directory=name, extension=ext))

@@ -1,6 +1,7 @@
 from multiprocessing import Queue
 from folder_processor import FolderProcessor
 from reps.archiver import ZipArchiver, RARArchiver
+from reps_exception import RepsError
 from renamer import FileRenamer
 import os
 from shutil import move
@@ -33,7 +34,7 @@ class Dispatcher:
         target_path = os.path.join(self._replay_folder, dest)
 
         if self._archiver is None:
-            raise Exception('archiver was not defined')
+            raise RepsError(['archiver was not defined', file_path])
         else:
             self._archiver.extract(file_path, target_path)
 
@@ -67,7 +68,8 @@ class Dispatcher:
             self._archiver = RARArchiver()
             print("rar found")
         else:
-            raise Exception("archive must have a valid extension")
+            file_path = os.path.join(self._upload_folder, archive_name)
+            raise RepsError(["archive must have a valid extension", file_path])
 
         #unzip file to /replays/<archive_name w/o extension>
         self.__extract_replays(src=archive_name, dest=directory)
