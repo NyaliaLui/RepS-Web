@@ -98,7 +98,7 @@ class Dispatcher:
 
         try:
             #rename files for archival purposes
-            name = self._renamer.next_available_name()
+            name = self._renamer.get_name_from_remote('127.0.0.1', 5016)
             olddir = target
             newdir = os.path.join(self._replay_folder, name)
             move(olddir, newdir)
