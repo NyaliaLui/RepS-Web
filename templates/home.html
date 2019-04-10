@@ -3,16 +3,16 @@
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="RepS is a SC2 replay organizer">
-    <meta name="author" content="Nyalia Lui">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
     <title>RepS</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
-    <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 
-    <!-- Custom styles for this template -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/cover.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/reps.js') }}"></script>
   </head>
 
   <body class="text-center">
@@ -23,28 +23,48 @@
             <a class="masthead-brand" href="/" style="cursor: pointer;">RepS</ha>
           <nav class="nav nav-masthead justify-content-center">
             <a class="nav-link" href="/premade">Premade Archives</a>
+            <a class="nav-link" href="/help">HELP!</a>
             <a class="nav-link" href="/about">About</a>
           </nav>
         </div>
       </header>
 
       <main id="main__window" role="main" class="inner cover">
-        <h1>RepS replay organizer</h1>
-        <h1 id="thank__link">Coming Soon!</h1>
-        <p id="about__text">RepS is a replay organizer that will look at all SC2 replays in a zip archive and sort them.
-          The creator, Nyalia "Noticals" Lui, has been a SC2 fan since 2011 but has grown tired searching through
-          large replay packs for the matches and series he wants to watch. This tool is designed to make replay organization easier for both 
-          streamers and viewers alike.
-        </p>
+        <ul class=flashes id="err__wndow">
+          {% with messages = get_flashed_messages() %}
+            {% if messages %}      
+              {% for message in messages %}
+                <li>{{ message }}</li>
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
+        </ul>
+
+        <form method="post" enctype="multipart/form-data">
+            <div id="replay__zone">
+              <input type="file" id="replays" name="replays" onchange="validate_file()"/>
+              <label id="replays__labl" for="replays" class="dragndrop"><strong>Click here</strong> to upload replays in .zip or .rar file</label>
+              <p id="perm__reminder">permission to store archive is <u style="color:palevioletred;">required</u></p>
+            </div>
+            <p id="store__perm"><input id="perm" type="checkbox" name="perm" value="yes" onclick="validate_checkbox()" required>   I give RepS permission to store my archive file</p>
+            <progress id="progress__bar" value="0" max="100" style="width:300px;display:none;"></progress>
+            <h3 id="status" style="display:none;"></h3>
+            <p id="loaded_n_total" style="display:none;"></p>
+            <input type="text" id="archivename" name="archivename" style="display:none;">
+            <button class="sort__btn btn btn-lg btn-secondary" formaction="/sort/player" style="display:none;" >Sort by player name</button>
+            <button class="sort__btn btn btn-lg btn-secondary" formaction="/sort/matchup" style="display:none;">Sort by SC2 matchup</button>
+            <p id="rename__check" style="display:none;"><input id="rename" type="checkbox" name="rename" value="yes">   Yes, I want RepS to rename my replays.</p>
+        </form>
       </main>
 
       <footer class="mastfoot mt-auto">
         <div class="inner">
-          <p>RepS designed by <a href="https://twitter.com/noticals">@Noticals</a>.</p>
+          <p>Follow us on twitter <a href="https://twitter.com/sc2reps">@sc2reps</a>.</p>
           <p>Cover template for <a href="https://getbootstrap.com/">Bootstrap</a>, by <a href="https://twitter.com/mdo">@mdo</a>.</p>
         </div>
       </footer>
     </div>
+
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->

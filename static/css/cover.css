@@ -135,7 +135,7 @@ body {
   cursor: pointer;
 }
 
-#replay__zone {
+#replay__zone, #btn__zone {
   background-color: #333;
   outline: 2px dashed #fff;
   outline-offset: -10px;
@@ -169,4 +169,38 @@ body {
 
 .list__items li {
   margin: 1.2em 0;
+}
+
+#progress__bar p {
+	display: block;
+	width: 240px;
+	padding: 2px 5px;
+	margin: 2px 0;
+	border: 1px inset #446;
+	border-radius: 5px;
+}
+
+#progress__bar p.success {
+	background: #0c0 none 0 0 no-repeat;
+}
+
+#progress__bar p.failed {
+	background: #c00 none 0 0 no-repeat;
+}
+
+#store__perm {
+  color:white;
+  font-size: 1.2em;
+  padding-top: 1.8em;
+}
+
+#rename__check {
+  color:white;
+  font-size: 1.2em;
+  padding-top: 2em;
+}
+
+#perm__reminder {
+  display:none;
+  font-size: 1.3em;
 }
