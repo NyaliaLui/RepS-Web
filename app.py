@@ -19,7 +19,7 @@ ARCHIVE_FOLDER = os.path.join(APP_ROOT, 'archive')
 ALLOWED_EXTENSIONS = set(['zip', 'rar'])
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'GNcC79NhRYEo7fIA3BQdKvlvIgRy'
+app.config['SECRET_KEY'] = 'SuperSecretKey'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.logger.addHandler(logging.StreamHandler(sys.stdout))
 app.logger.setLevel(logging.ERROR)
